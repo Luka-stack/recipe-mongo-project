@@ -1,6 +1,7 @@
-package com.nisshoku.recipeproject.Domain;
+package com.nisshoku.recipeproject.domain;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class Recipe {
@@ -18,6 +19,9 @@ public class Recipe {
     private String directions;
     //TODO add
     // private Difficulty difficulty;
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "recipe")
+    private Set<Ingredient> ingredientSet;
 
     @Lob
     private Byte[] image;
@@ -104,4 +108,5 @@ public class Recipe {
     public void setNotes(Notes notes) {
         this.notes = notes;
     }
+
 }

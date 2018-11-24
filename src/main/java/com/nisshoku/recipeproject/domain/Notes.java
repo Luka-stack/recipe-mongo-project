@@ -1,4 +1,4 @@
-package com.nisshoku.recipeproject.Domain;
+package com.nisshoku.recipeproject.domain;
 
 import javax.persistence.*;
 
@@ -38,4 +38,5 @@ public class Notes {
     public void setRecipeNotes(String recipeNotes) {
         this.recipeNotes = recipeNotes;
     }
+
 }
