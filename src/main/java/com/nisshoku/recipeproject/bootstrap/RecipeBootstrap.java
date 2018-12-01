@@ -4,6 +4,7 @@ import com.nisshoku.recipeproject.domain.*;
 import com.nisshoku.recipeproject.repositories.CategoryRepository;
 import com.nisshoku.recipeproject.repositories.RecipeRepository;
 import com.nisshoku.recipeproject.repositories.UnitOfMeasureRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Slf4j
 @Component
 public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEvent> {
 
@@ -143,6 +145,7 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
 
         // add to return list
         recipes.add(guacaRecipe);
+        log.debug("I'm RecipeBootstrap. Guaca Recipe has been added to Recipes");
 
         // Chicken Tacos
         Recipe tacosRecipe = new Recipe();
@@ -195,6 +198,7 @@ public class RecipeBootstrap implements ApplicationListener<ContextRefreshedEven
 
         // add to return list
         recipes.add(tacosRecipe);
+        log.debug("I'm RecipeBootstrap. Tacos Recipe has been added to Recipes");
 
         return recipes;
     }
