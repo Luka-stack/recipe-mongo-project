@@ -78,14 +78,57 @@ public class IngredientServiceImpl implements IngredientService {
                                                               .orElseThrow(() -> new RuntimeException("UOM NOT FOUND")));
             }
             else {
-                recipe.addIngredient(ingredientCommandToIngredient.convert(ingredientCommand));
+                // add new ingredient
+                Ingredient ingredient = ingredientCommandToIngredient.convert(ingredientCommand);
+                ingredient.setRecipe(recipe);
+                recipe.addIngredient(ingredient);
             }
 
             Recipe savedRecipe = recipeRepository.save(recipe);
 
-            return ingredientToIngredientCommand.convert(savedRecipe.getIngredients().stream()
-                        .filter(recipeIngredients -> recipeIngredients.getId().equals(ingredientCommand.getId()))
-                        .findFirst().get());
+            Optional<Ingredient> savedIngredientOptional = savedRecipe.getIngredients().stream()
+                    .filter(recipeIngredient -> recipeIngredient.getId().equals(ingredientCommand.getId()))
+                    .findFirst();
+
+            // check by description
+            if (!savedIngredientOptional.isPresent()) {
+                savedIngredientOptional = savedRecipe.getIngredients().stream()
+                        .filter(recipeIngredient -> recipeIngredient.getDescription().equals(ingredientCommand.getDescription()))
+                        .filter(recipeIngredient -> recipeIngredient.getAmount().equals(ingredientCommand.getAmount()))
+                        .filter(recipeIngredient -> recipeIngredient.getUom().getId().equals(ingredientCommand.getUom().getId()))
+                        .findFirst();
+            }
+
+            return ingredientToIngredientCommand.convert(savedIngredientOptional.get());
+        }
+    }
+
+    @Override
+    public void deleteById(Long recipeId, Long ingredientId) {
+        log.debug("Deleting ingredient: " + recipeId + ":" + ingredientId);
+
+        Optional<Recipe> recipeOptional = recipeRepository.findById(recipeId);
+
+        if (recipeOptional.isPresent()) {
+            log.debug("Recipe Found!");
+
+            Recipe recipe = recipeOptional.get();
+
+            Optional<Ingredient> ingredientOptional = recipe.getIngredients().stream()
+                    .filter(ingredient -> ingredient.getId().equals(ingredientId))
+                    .findFirst();
+
+            if (ingredientOptional.isPresent()) {
+                log.debug("Found Ingredient!");
+
+                Ingredient ingredientToDelete = ingredientOptional.get();
+                ingredientToDelete.setRecipe(null);
+                recipe.getIngredients().remove(ingredientToDelete);
+                recipeRepository.save(recipe);
+            }
+        }
+        else {
+            log.debug("Recipe Id Not Found: " + recipeId);
         }
     }
 }

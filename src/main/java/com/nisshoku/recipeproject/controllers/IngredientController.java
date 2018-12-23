@@ -1,6 +1,8 @@
 package com.nisshoku.recipeproject.controllers;
 
 import com.nisshoku.recipeproject.commands.IngredientCommand;
+import com.nisshoku.recipeproject.commands.RecipeCommand;
+import com.nisshoku.recipeproject.commands.UnitOfMeasureCommand;
 import com.nisshoku.recipeproject.service.IngredientService;
 import com.nisshoku.recipeproject.service.RecipeService;
 import com.nisshoku.recipeproject.service.UnitOfMeasureService;
@@ -44,6 +46,24 @@ public class IngredientController {
         return "recipe/ingredient/show";
     }
 
+    @GetMapping("recipe/{recipeId}/ingredient/new")
+    public String newIngredient(@PathVariable String recipeId, Model model) {
+        // make sure that recipeId is valid
+        RecipeCommand recipeCommand = recipeService.findCommandById(Long.valueOf(recipeId));
+
+        // need to return back parent id for hidden form property
+        IngredientCommand ingredientCommand = new IngredientCommand();
+        ingredientCommand.setRecipeId(Long.valueOf(recipeId));
+        model.addAttribute("ingredient", ingredientCommand);
+
+        // init uom
+        ingredientCommand.setUom(new UnitOfMeasureCommand());
+
+        model.addAttribute("uomList", unitOfMeasureService.listAllUoms());
+
+        return "recipe/ingredient/ingredientform";
+    }
+
     @GetMapping("recipe/{recipeId}/ingredient/{id}/update")
     public String updateRecipeIngredient(@PathVariable String recipeId, @PathVariable String id,
                                          Model model) {
@@ -62,6 +82,15 @@ public class IngredientController {
         log.debug("saved ingredient id:" + savedCommand.getId());
 
         return "redirect:/recipe/" + savedCommand.getRecipeId() + "/ingredient/" + savedCommand.getId() + "/show";
+    }
+
+    @GetMapping("recipe/{recipeId}/ingredient/{id}/delete")
+    public String deleteIngredient(@PathVariable String recipeId, @PathVariable String id) {
+        log.debug("Delete Ingredient id: " + id);
+
+        ingredientService.deleteById(Long.valueOf(recipeId), Long.valueOf(id));
+
+        return "redirect:/recipe/" + recipeId + "/ingredients";
     }
 
 }
